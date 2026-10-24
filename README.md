@@ -31,6 +31,10 @@ Family music steering system. **Not** ISO Principle.
 - No claim that an arc was heard until Weston reports back.
 - No medical advice; low-sugar / crisis → prefer Steady and house safety tools.
 
+## Live (verified)
+
+https://schmidtweston-ship-it.github.io/lumenway/ — HTTP 200 at ~1:54 PM MDT 2026-10-24.
+
 ## Honesty
 
 Ada (Family CTO) keeps this honest: scaffold = prompt + log structure + offline runner. Live ship URL only after GitHub Pages verify returns HTTP 200.
