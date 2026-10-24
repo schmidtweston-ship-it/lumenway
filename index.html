@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0e0e10">
+  <title>Lumenway — music navigator</title>
+  <style>
+    :root {
+      --bg: #0e0e10; --panel: #18181c; --ink: #f2efe8; --muted: #9a958c;
+      --gold: #d4b483; --line: #2c2c32; --ok: #7a9e8a; --warn: #c97b8a;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; min-height: 100vh; background: var(--bg); color: var(--ink);
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      max-width: 720px; margin-inline: auto; padding: 24px 16px 64px;
+    }
+    h1 { font-family: Georgia, serif; font-weight: 600; color: var(--gold); margin: 0 0 6px; font-size: 1.7rem; }
+    .lede { color: var(--muted); margin: 0 0 20px; line-height: 1.45; font-size: 0.95rem; }
+    .badge {
+      display: inline-block; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase;
+      border: 1px solid var(--line); color: var(--muted); padding: 4px 8px; border-radius: 999px; margin-bottom: 12px;
+    }
+    section {
+      background: var(--panel); border: 1px solid var(--line); border-radius: 16px;
+      padding: 16px; margin-bottom: 16px;
+    }
+    section h2 { margin: 0 0 12px; font-size: 1.05rem; color: var(--gold); font-family: Georgia, serif; }
+    label { display: block; font-size: 0.82rem; color: var(--muted); margin: 10px 0 4px; }
+    input, select, textarea {
+      width: 100%; background: #101014; color: var(--ink); border: 1px solid var(--line);
+      border-radius: 10px; padding: 10px 12px; font: inherit;
+    }
+    textarea { min-height: 72px; resize: vertical; }
+    .row { display: grid; gap: 10px; }
+    @media (min-width: 560px) { .row.two { grid-template-columns: 1fr 1fr; } .row.three { grid-template-columns: 1fr 1fr 1fr; } }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+    button {
+      appearance: none; border: 0; border-radius: 12px; padding: 11px 14px; font: inherit; font-weight: 650;
+      cursor: pointer; background: var(--gold); color: #1a1420;
+    }
+    button.soft { background: transparent; color: var(--muted); border: 1px solid var(--line); }
+    button:active { transform: scale(0.98); }
+    pre, .mono {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.78rem;
+      white-space: pre-wrap; word-break: break-word; background: #101014; border: 1px solid var(--line);
+      border-radius: 12px; padding: 12px; max-height: 320px; overflow: auto; color: #e8e4dc;
+    }
+    .msg { font-size: 0.85rem; color: var(--ok); margin-top: 8px; min-height: 1.2em; }
+    .msg.warn { color: var(--warn); }
+    .log-list { display: grid; gap: 10px; }
+    .log-card {
+      border: 1px solid var(--line); border-radius: 12px; padding: 12px; background: #101014; font-size: 0.88rem;
+    }
+    .log-card strong { color: var(--gold); }
+    footer { text-align: center; color: var(--muted); font-size: 0.75rem; margin-top: 20px; }
+    .honest { font-size: 0.8rem; color: var(--muted); border-left: 3px solid var(--gold); padding-left: 10px; margin: 0 0 12px; }
+  </style>
+</head>
+<body>
+  <div class="badge">Scaffold · offline · no streaming wire</div>
+  <h1>Lumenway</h1>
+  <p class="lede">Feed Weston’s state. Copy the navigator prompt. Log the three-song arc and what actually shifted. Not ISO Principle (that one uses seven songs).</p>
+  <p class="honest">Honesty: this page does not play music, call Spotify, or invent tracks. It fills a prompt and keeps a local log in this browser.</p>
+
+  <section>
+    <h2>1 · State in</h2>
+    <div class="row two">
+      <div>
+        <label for="mood">Mood now</label>
+        <input id="mood" placeholder="e.g. flat, wired, heavy">
+      </div>
+      <div>
+        <label for="target">Target mood (optional)</label>
+        <input id="target" placeholder="e.g. steady, soft, clear">
+      </div>
+    </div>
+    <div class="row three">
+      <div>
+        <label for="bs">Blood sugar (mg/dL)</label>
+        <input id="bs" type="number" step="1" placeholder="optional">
+      </div>
+      <div>
+        <label for="bsn">Sugar note</label>
+        <select id="bsn">
+          <option value="unknown">unknown</option>
+          <option value="low">low</option>
+          <option value="ok">ok</option>
+          <option value="high">high</option>
+        </select>
+      </div>
+      <div>
+        <label for="stress">Stress (1–5)</label>
+        <select id="stress">
+          <option value="">unknown</option>
+          <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
+        </select>
+      </div>
+    </div>
+    <div class="row two">
+      <div>
+        <label for="sleep_h">Sleep hours</label>
+        <input id="sleep_h" type="number" step="0.5" placeholder="optional">
+      </div>
+      <div>
+        <label for="sleep_q">Sleep quality</label>
+        <select id="sleep_q">
+          <option value="unknown">unknown</option>
+          <option value="poor">poor</option>
+          <option value="fair">fair</option>
+          <option value="good">good</option>
+        </select>
+      </div>
+    </div>
+    <label for="spoken">Spoken context (what he just said)</label>
+    <textarea id="spoken" placeholder="Verbatim if you can."></textarea>
+    <label for="recent">Recent tracks (comma-separated, optional)</label>
+    <input id="recent" placeholder="title — artist, …">
+    <label for="constraints">Constraints (optional)</label>
+    <input id="constraints" placeholder="quiet / instrumental / no lyrics">
+    <div class="actions">
+      <button type="button" id="build">Build navigator prompt</button>
+      <button type="button" class="soft" id="copy">Copy prompt</button>
+    </div>
+    <div class="msg" id="msg1"></div>
+  </section>
+
+  <section>
+    <h2>2 · Filled prompt (copy into a chat)</h2>
+    <pre id="promptOut">Fill state, then Build.</pre>
+  </section>
+
+  <section>
+    <h2>3 · Arc + feedback → log</h2>
+    <label for="arcPaste">Paste arc JSON (entry / bridge / landing) or plain text</label>
+    <textarea id="arcPaste" style="min-height:120px" placeholder='{"entry":{"title":"…","why":"…"},"bridge":{…},"landing":{…},"shift_hypothesis":"…","ask_back":"…"}'></textarea>
+    <label for="shifted">What shifted after listening? (optional)</label>
+    <textarea id="shifted" placeholder="He reports back here."></textarea>
+    <div class="row three">
+      <div>
+        <label for="kd_e">Keep entry?</label>
+        <select id="kd_e"><option value="">—</option><option>keep</option><option>drop</option><option>maybe</option></select>
+      </div>
+      <div>
+        <label for="kd_b">Keep bridge?</label>
+        <select id="kd_b"><option value="">—</option><option>keep</option><option>drop</option><option>maybe</option></select>
+      </div>
+      <div>
+        <label for="kd_l">Keep landing?</label>
+        <select id="kd_l"><option value="">—</option><option>keep</option><option>drop</option><option>maybe</option></select>
+      </div>
+    </div>
+    <div class="actions">
+      <button type="button" id="saveLog">Save to local log</button>
+      <button type="button" class="soft" id="exportLog">Export JSONL</button>
+      <button type="button" class="soft" id="clearLog">Clear local log</button>
+    </div>
+    <div class="msg" id="msg2"></div>
+  </section>
+
+  <section>
+    <h2>4 · Log viewer</h2>
+    <div class="log-list" id="logView"></div>
+  </section>
+
+  <footer>Lumenway scaffold · Equal always · America/Denver</footer>
+
+  <script>
+  (function () {
+    const CORE = `You are the family's music navigator. Given Weston's current state across mood, body, and context, output a three-song arc — entry, bridge, landing — with one sentence on why each track serves the shift. Track what he reports back. Over time the arcs get sharper.
+
+Rules: do not invent playlist URLs; do not claim Spotify playback; if blood sugar is low or crisis is marked, keep the landing short and safety-first. Return JSON matching arc.output.json (entry, bridge, landing, shift_hypothesis, ask_back).`;
+
+    const KEY = "lumenway.arcs.v1";
+    const $ = (id) => document.getElementById(id);
+    const nowIso = () => {
+      const d = new Date();
+      const off = -d.getTimezoneOffset();
+      const sign = off >= 0 ? "+" : "-";
+      const pad = (n) => String(Math.floor(Math.abs(n))).padStart(2, "0");
+      const hh = pad(off / 60), mm = pad(off % 60);
+      const local = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
+      return local.toISOString().slice(0, 19) + sign + hh + ":" + mm;
+    };
+
+    function stateObj() {
+      const bs = $("bs").value.trim();
+      const stress = $("stress").value;
+      const sleepH = $("sleep_h").value.trim();
+      const recent = $("recent").value.split(",").map((s) => s.trim()).filter(Boolean);
+      return {
+        recorded_at: nowIso(),
+        mood: $("mood").value.trim() || "(unset)",
+        target_mood: $("target").value.trim() || null,
+        body: {
+          blood_sugar: bs === "" ? null : Number(bs),
+          blood_sugar_note: $("bsn").value,
+          sleep_hours: sleepH === "" ? null : Number(sleepH),
+          sleep_quality: $("sleep_q").value,
+          stress: stress === "" ? null : Number(stress)
+        },
+        spoken_context: $("spoken").value.trim(),
+        recent_tracks: recent,
+        constraints: $("constraints").value.trim() || null
+      };
+    }
+
+    function buildPrompt() {
+      const state = stateObj();
+      const text = CORE + "\n\n## Current state\n```json\n" + JSON.stringify(state, null, 2) + "\n```\n";
+      $("promptOut").textContent = text;
+      $("msg1").textContent = "Prompt built " + state.recorded_at + " (local zone).";
+      $("msg1").className = "msg";
+      return text;
+    }
+
+    function loadLogs() {
+      try { return JSON.parse(localStorage.getItem(KEY) || "[]"); }
+      catch { return []; }
+    }
+    function saveLogs(arr) { localStorage.setItem(KEY, JSON.stringify(arr)); }
+
+    function renderLogs() {
+      const arr = loadLogs();
+      const box = $("logView");
+      if (!arr.length) {
+        box.innerHTML = '<p class="lede" style="margin:0">No arcs logged in this browser yet. Template file lives at logs/arcs.jsonl on disk.</p>';
+        return;
+      }
+      box.innerHTML = arr.slice().reverse().map((row) => {
+        const a = row.arc || {};
+        const e = (a.entry && a.entry.title) || "—";
+        const b = (a.bridge && a.bridge.title) || "—";
+        const l = (a.landing && a.landing.title) || "—";
+        const mood = (row.state && row.state.mood) || "—";
+        const shift = (row.feedback && row.feedback.what_shifted) || "no report yet";
+        return '<div class="log-card"><strong>' + esc(row.id) + '</strong> · ' + esc(row.recorded_at || "") +
+          '<div>mood: ' + esc(mood) + '</div>' +
+          '<div>entry → bridge → landing: ' + esc(e) + ' → ' + esc(b) + ' → ' + esc(l) + '</div>' +
+          '<div>shifted: ' + esc(shift) + '</div></div>';
+      }).join("");
+    }
+
+    function esc(s) {
+      return String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;" }[c]));
+    }
+
+    function parseArc(raw) {
+      const t = raw.trim();
+      if (!t) return null;
+      try { return JSON.parse(t); } catch { return { raw_text: t }; }
+    }
+
+    $("build").onclick = buildPrompt;
+    $("copy").onclick = async () => {
+      const text = $("promptOut").textContent;
+      if (!text || text.startsWith("Fill state")) {
+        $("msg1").textContent = "Build the prompt first.";
+        $("msg1").className = "msg warn";
+        return;
+      }
+      try {
+        await navigator.clipboard.writeText(text);
+        $("msg1").textContent = "Copied.";
+        $("msg1").className = "msg";
+      } catch {
+        $("msg1").textContent = "Clipboard blocked — select the prompt and copy manually.";
+        $("msg1").className = "msg warn";
+      }
+    };
+
+    $("saveLog").onclick = () => {
+      const state = stateObj();
+      const arc = parseArc($("arcPaste").value);
+      if (!arc) {
+        $("msg2").textContent = "Paste an arc first.";
+        $("msg2").className = "msg warn";
+        return;
+      }
+      const row = {
+        id: "arc-" + Date.now(),
+        recorded_at: nowIso(),
+        state,
+        arc,
+        feedback: {
+          heard: Boolean($("shifted").value.trim()),
+          what_shifted: $("shifted").value.trim() || null,
+          keep_or_drop: {
+            entry: $("kd_e").value || null,
+            bridge: $("kd_b").value || null,
+            landing: $("kd_l").value || null
+          },
+          notes: null
+        }
+      };
+      const arr = loadLogs();
+      arr.push(row);
+      saveLogs(arr);
+      renderLogs();
+      $("msg2").textContent = "Saved locally as " + row.id + ". Export JSONL to append into logs/arcs.jsonl on disk.";
+      $("msg2").className = "msg";
+    };
+
+    $("exportLog").onclick = () => {
+      const arr = loadLogs();
+      const body = arr.map((r) => JSON.stringify(r)).join("\n") + (arr.length ? "\n" : "");
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type: "application/x-ndjson" }));
+      a.download = "arcs-export.jsonl";
+      a.click();
+      $("msg2").textContent = "Export started — append into logs/arcs.jsonl when ready.";
+      $("msg2").className = "msg";
+    };
+
+    $("clearLog").onclick = () => {
+      if (!confirm("Clear this browser’s Lumenway log?")) return;
+      localStorage.removeItem(KEY);
+      renderLogs();
+      $("msg2").textContent = "Local log cleared. Disk template untouched.";
+      $("msg2").className = "msg";
+    };
+
+    renderLogs();
+  })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,2 @@
+{"_comment":"One JSON object per line. Template rows below — replace or append real arcs. Do not invent heard feedback."}
+{"id":"arc-template","recorded_at":null,"state":null,"arc":{"entry":{"title":"","artist":null,"why":""},"bridge":{"title":"","artist":null,"why":""},"landing":{"title":"","artist":null,"why":""},"shift_hypothesis":"","ask_back":""},"feedback":{"heard":false,"what_shifted":null,"keep_or_drop":{"entry":null,"bridge":null,"landing":null},"notes":null}}

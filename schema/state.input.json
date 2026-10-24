@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "lumenway/state.input.json",
+  "title": "LumenwayStateInput",
+  "type": "object",
+  "required": ["recorded_at", "mood", "body", "spoken_context"],
+  "properties": {
+    "recorded_at": { "type": "string", "description": "When this state was captured. Prefer ISO-8601 with America/Denver offset." },
+    "mood": { "type": "string", "minLength": 1 },
+    "target_mood": { "type": ["string", "null"] },
+    "body": {
+      "type": "object",
+      "required": ["blood_sugar_note", "sleep_quality"],
+      "properties": {
+        "blood_sugar": { "type": ["number", "null"], "description": "mg/dL if known" },
+        "blood_sugar_note": { "type": "string", "enum": ["low", "ok", "high", "unknown"] },
+        "sleep_hours": { "type": ["number", "null"] },
+        "sleep_quality": { "type": "string", "enum": ["poor", "fair", "good", "unknown"] },
+        "stress": { "type": ["integer", "null"], "minimum": 1, "maximum": 5 }
+      },
+      "additionalProperties": false
+    },
+    "spoken_context": { "type": "string" },
+    "recent_tracks": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "constraints": { "type": ["string", "null"] }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "lumenway/arc.output.json",
+  "title": "LumenwayArcOutput",
+  "type": "object",
+  "required": ["entry", "bridge", "landing", "shift_hypothesis", "ask_back"],
+  "properties": {
+    "entry": { "$ref": "#/$defs/track" },
+    "bridge": { "$ref": "#/$defs/track" },
+    "landing": { "$ref": "#/$defs/track" },
+    "shift_hypothesis": { "type": "string" },
+    "ask_back": { "type": "string" }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "track": {
+      "type": "object",
+      "required": ["title", "why"],
+      "properties": {
+        "title": { "type": "string" },
+        "artist": { "type": ["string", "null"] },
+        "why": { "type": "string", "description": "One sentence on why this track serves the shift." }
+      },
+      "additionalProperties": false
+    }
+  }
+}
